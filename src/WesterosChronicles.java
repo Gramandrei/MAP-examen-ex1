@@ -1,3 +1,8 @@
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.*;
 import java.util.stream.*;
 
@@ -49,7 +54,40 @@ public class WesterosChronicles {
                 .collect(Collectors.toList());
         System.out.println("\nGefilterte Namen:");
         filteredMembers.forEach(System.out::println);
+
+        //b)
+        System.out.println("\nEreignisse des Hauses Stark nach Datum sortiert:");
+        events.stream()
+                .filter(event -> event.getHaus().equals("Stark"))
+                .sorted(Comparator.comparing(Event::getDatum))
+                .forEach(System.out::println);
     }
+
+    private static List<Event> readXml(String filename) throws Exception {
+        List<Event> events = new ArrayList<>();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(filename);
+
+        NodeList logNodes = document.getElementsByTagName("log");
+        for (int i = 0; i < logNodes.getLength(); i++) {
+            var logNode = logNodes.item(i).getChildNodes();
+            Event event = new Event();
+            for (int j = 0; j < logNode.getLength(); j++) {
+                var node = logNode.item(j);
+                switch (node.getNodeName()) {
+                    case "Id" -> event.id = Integer.parseInt(node.getTextContent());
+                    case "Mitgliedsname" -> event.mitgliedsname = node.getTextContent();
+                    case "Haus" -> event.haus = node.getTextContent();
+                    case "Ereignis" -> event.ereignis = node.getTextContent();
+                    case "Datum" -> event.datum = node.getTextContent();
+                }
+            }
+            events.add(event);
+        }
+        return events;
+    }
+
 
 
 
@@ -57,11 +95,3 @@ public class WesterosChronicles {
     //Files.write(Paths.get("result.txt"), results);
 
 }
-
-//        // Task b: Display
-//        System.out.println("Space Group Tasks by Difficulty:");
-//        tasks.stream()
-//                .filter(task -> task.group == Group.Space)
-//                .sorted(Comparator.comparing(task -> task.difficulty))
-//                .map(task -> task.taskName)
-//                .forEach(System.out::println);
