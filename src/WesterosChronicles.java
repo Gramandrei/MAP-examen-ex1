@@ -3,6 +3,10 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.*;
 
@@ -61,6 +65,17 @@ public class WesterosChronicles {
                 .filter(event -> event.getHaus().equals("Stark"))
                 .sorted(Comparator.comparing(Event::getDatum))
                 .forEach(System.out::println);
+
+        // c)
+        Map<String, Long> houseEventCount = events.stream()
+                .collect(Collectors.groupingBy(Event::getHaus, TreeMap::new, Collectors.counting()));
+
+        System.out.println("\nDie Gesamtanzahl der Ereignisse pro Haus:");
+        houseEventCount.forEach((house, count) -> System.out.println(house + "#" + count));
+
+        String outputFileName = "ergebnis.txt";
+        saveHouseEventCount(houseEventCount, outputFileName);
+        System.out.println("\nDas Ergebnis wurde in " + outputFileName + " gespeichert.");
     }
 
     private static List<Event> readXml(String filename) throws Exception {
@@ -91,7 +106,5 @@ public class WesterosChronicles {
 
 
 
-
-    //Files.write(Paths.get("result.txt"), results);
 
 }
