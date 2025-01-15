@@ -70,6 +70,8 @@ public class WesterosChronicles {
         Map<String, Long> houseEventCount = events.stream()
                 .collect(Collectors.groupingBy(Event::getHaus, TreeMap::new, Collectors.counting()));
 
+
+        //d)
         System.out.println("\nDie Gesamtanzahl der Ereignisse pro Haus:");
         houseEventCount.forEach((house, count) -> System.out.println(house + "#" + count));
 
@@ -103,6 +105,18 @@ public class WesterosChronicles {
         return events;
     }
 
+
+    private static void saveHouseEventCount(Map<String, Long> houseEventCount, String filename) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            houseEventCount.forEach((house, count) -> {
+                try {
+                    writer.write(house + "#" + count + "\n");
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        }
+    }
 
 
 
